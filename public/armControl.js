@@ -421,11 +421,16 @@ function updateAngle() {
     document.getElementById("joint2-value").innerHTML = joint2;
     document.getElementById("joint3-value").innerHTML = joint3;
 
-    console.log(joint1, joint2, joint3);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/data", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify({ arm: [joint1, joint2, joint3] }));
 
     joint1 = -joint1 / 180 * Math.PI;
-    joint2 = (joint2 - 90) / 180 * Math.PI;// enlever - 90 si 0-180 PAS perpendiculare
-    joint3 = (joint3 - 90) / 180 * Math.PI;// enlever - 90 si 0-180 PAS perpendiculare 
+    joint2 = (joint2 - 90) / 180 * Math.PI;
+    joint3 = (joint3 - 90) / 180 * Math.PI; 
+
+    console.log(-joint1*180/Math.PI, joint2*180/Math.PI, joint3*180/Math.PI);
 
     drawAll(joint1, joint2, joint3, base, pince, rotation);
 }
@@ -481,24 +486,21 @@ function calculateAndDraw(stabilisation) {
     joint3 = angles.joint3;
 
     if (0 > joint1 && joint1 > -Math.PI &&
-        0 < joint2 && joint2 < Math.PI &&
-        //Math.PI / 2 > joint2 && joint2 > -Math.PI / 2 && // enlever si 0-180 PAS perpendiculare
-        //Math.PI / 2 > joint3 && joint3 > -Math.PI / 2 // enlever si 0-180 PAS perpendiculare
-        0 < joint3 && joint3 < Math.PI
+        Math.PI / 2 > joint2 && joint2 > -Math.PI / 2 && 
+        Math.PI / 2 > joint3 && joint3 > -Math.PI / 2
     ) {
 
         drawAll(joint1, joint2, joint3, base, pince, rotation);
         
-        console.log(angles.joint1*180/Math.PI, angles.joint2*180/Math.PI, angles.joint3*180/Math.PI);
 
         document.getElementById("joint1-value").innerHTML = Math.round(- joint1 * 180 / Math.PI);
-        document.getElementById("joint2-value").innerHTML = Math.round(joint2 * 180 / Math.PI);// + 90;// enlever + 90 si 0-180 PAS perpendiculare 
-        document.getElementById("joint3-value").innerHTML = Math.round(joint3 * 180 / Math.PI); // enlever + 90 si 0-180 PAS perpendiculare 
+        document.getElementById("joint2-value").innerHTML = Math.round(joint2 * 180 / Math.PI) + 90;
+        document.getElementById("joint3-value").innerHTML = Math.round(joint3 * 180 / Math.PI) + 90; 
         document.getElementById("stabilisation-value").innerHTML = Math.round(stabilisation * 180 / Math.PI);
 
         document.getElementById("joint1").value = - joint1 * 180 / Math.PI;
-        document.getElementById("joint2").value = joint2 * 180 / Math.PI; // + 90;// enlever + 90 si 0-180 PAS perpendiculare 
-        document.getElementById("joint3").value = joint3 * 180 / Math.PI; //+ 90; // enlever + 90 si 0-180 PAS perpendiculare 
+        document.getElementById("joint2").value = joint2 * 180 / Math.PI + 90;
+        document.getElementById("joint3").value = joint3 * 180 / Math.PI + 90; 
         document.getElementById("stabilisation").value = stabilisation * 180 / Math.PI;
     }
 }
