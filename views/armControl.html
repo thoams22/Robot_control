@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="/armControl.css">
+  <title>Robot Arm Control</title>
+
+</head>
+
+<body>
+  <div>
+    <div>
+      <label for="joint1">joint 1:</label>
+      <input type="range" min="0" max="180" value="0" id="joint1" oninput="updateAngle()">
+      <span id="joint1-value"></span>
+
+      <label for="base">base :</label>
+      <input type="range" min="0" max="180" value="90" id="base" oninput="updateBase()">
+      <span id="base-value"></span>
+    </div>
+    <div>
+      <label for="joint2">joint 2:</label>
+      <input type="range" min="0" max="180" value="0" id="joint2" oninput="updateAngle()">
+      <span id="joint2-value"></span>
+
+      <label for="pince">pince :</label>
+      <input type="range" min="0" max="90" value="0" id="pince" oninput="updatePince()">
+      <span id="pince-value"></span>
+    </div>
+    <div>
+      <label for="joint3">joint 3:</label>
+      <input type="range" min="0" max="180" value="0" id="joint3" oninput="updateAngle()">
+      <span id="joint3-value"></span>
+
+      <label for="rotation">rotation :</label>
+      <input type="range" min="0" max="180" value="0" id="rotation" oninput="updateRotation()">
+      <span id="rotation-value"></span>
+    </div>
+    <div>
+      <label for="stabilisation">stabilisation :</label>
+      <input type="range" min="-180" max="180" value="0" id="stabilisation" oninput="updateStabilisation()">
+      <span id="stabilisation-value"></span>
+    </div>
+  </div>
+  <canvas id="armControl" width="500" height="500"></canvas>
+  <script src="/armControl.js"></script>
+
+</body>
+
+</html>
