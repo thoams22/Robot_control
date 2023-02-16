@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="/armControl.css">
+  <link rel="stylesheet" href="/static/armControl.css">
   <title>Robot Arm Control</title>
 
 </head>
@@ -40,10 +40,12 @@
       <label for="stabilisation">stabilisation :</label>
       <input type="range" min="-180" max="180" value="0" id="stabilisation" oninput="updateStabilisation()">
       <span id="stabilisation-value"></span>
+      <button id = "btn" onClick ="btnClick()">
+      </button>
     </div>
   </div>
   <canvas id="armControl" width="500" height="500"></canvas>
-  <script src="/armControl.js"></script>
+  <script src="/static/armControl.js"></script>
 
 </body>
 

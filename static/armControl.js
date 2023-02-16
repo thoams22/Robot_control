@@ -22,8 +22,13 @@ var rotation = 0;
 var vitesseMotor1;
 var vitesseMotor2;
 
+var clicked = false;
+
+var xhr = new XMLHttpRequest();
+
 var armControl = document.getElementById("armControl");
 var ctx = armControl.getContext("2d");
+
 
 const pressedKeys = new Map();
 document.addEventListener('keydown', function (event) {
@@ -33,15 +38,12 @@ document.addEventListener('keydown', function (event) {
 
         if (pressedKeys.get("q")) {
             drawDirection(-3 * Math.PI / 4);
-            console.log("avance + gauche");
         }
         else if (pressedKeys.get("d")) {
             drawDirection(-Math.PI / 4);
-            console.log("aavance + droite");
         }
         else {
             drawDirection(-Math.PI / 2);
-            console.log("avance");
         }
     }
 
@@ -49,15 +51,12 @@ document.addEventListener('keydown', function (event) {
 
         if (pressedKeys.get("q")) {
             drawDirection(Math.PI / 4);
-            console.log("recul + droite");
         }
         else if (pressedKeys.get("d")) {
             drawDirection(3 * Math.PI / 4);
-            console.log("recul + gauche");
         }
         else {
             drawDirection(Math.PI / 2);
-            console.log("recul");
         }
     }
 
@@ -68,14 +67,15 @@ document.addEventListener('keydown', function (event) {
     else if (pressedKeys.get("d")) {
         console.log("sens horlo");
     }
-
-    console.log(pressedKeys);
+    send2server("direction", [pressedKeys.get("z"), pressedKeys.get("q"), pressedKeys.get("s"), pressedKeys.get("d")])
 }
 )
 
 document.addEventListener('keyup', function (event) {
 
     pressedKeys.set(event.key, false);
+    send2server("direction", [pressedKeys.get("z"), pressedKeys.get("q"), pressedKeys.get("s"), pressedKeys.get("d")])
+
 }
 )
 
@@ -153,7 +153,7 @@ function drawArm(joint1, joint2, joint3) {
     let x3 = x2 + l3 * Math.cos(joint1 + joint2 + joint3);
     let y3 = y2 + l3 * Math.sin(joint1 + joint2 + joint3);
 
-    if (y1 < armBase.y && y2 < armBase.y && y3 < armBase.y) {
+    if (y1 <= armBase.y && y2 <= armBase.y && y3 <= armBase.y) {
         ctx.beginPath();
         ctx.moveTo(armBase.x, armBase.y);
         ctx.lineTo(x1, y1);
@@ -200,7 +200,7 @@ function drawArm(joint1, joint2, joint3) {
 
 }
 
-function drawBase() {
+function drawBase(base) {
 
     ctx.beginPath();
     ctx.rect(baseBase.x, baseBase.y, baseBase.width, baseBase.height);
@@ -421,18 +421,14 @@ function updateAngle() {
     document.getElementById("joint2-value").innerHTML = joint2;
     document.getElementById("joint3-value").innerHTML = joint3;
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/data", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send(JSON.stringify({ arm: [joint1, joint2, joint3] }));
-
     joint1 = -joint1 / 180 * Math.PI;
     joint2 = (joint2 - 90) / 180 * Math.PI;
     joint3 = (joint3 - 90) / 180 * Math.PI; 
-
-    console.log(-joint1*180/Math.PI, joint2*180/Math.PI, joint3*180/Math.PI);
-
+    
     drawAll(joint1, joint2, joint3, base, pince, rotation);
+
+    send2server("arm", [Math.round(-joint1/Math.PI*180), Math.round(joint2/Math.PI*180)+90, Math.round(joint3/Math.PI*180)+90])
+
 }
 
 function updateStabilisation() {
@@ -449,6 +445,8 @@ function updateBase() {
     base = document.getElementById("base").value;
 
     document.getElementById("base-value").innerHTML = base;
+    
+    send2server("base", base);
 
     base = -base / 180 * Math.PI;
 
@@ -461,6 +459,8 @@ function updatePince() {
 
     document.getElementById("pince-value").innerHTML = pince;
 
+    send2server("pince", pince);
+
     pince = pince / 180 * Math.PI;
 
     drawAll(joint1, joint2, joint3, base, pince, rotation);
@@ -472,9 +472,21 @@ function updateRotation() {
 
     document.getElementById("rotation-value").innerHTML = rotation;
 
+    send2server("rotation", rotation);
+
     rotation = rotation / 180 * Math.PI;
 
     drawAll(joint1, joint2, joint3, base, pince, rotation);
+}
+
+function btnClick(){
+    if(clicked){
+        clicked = false;
+        }
+    else{
+        clicked = true;
+        }
+    send2server("btn", clicked)
 }
 
 function calculateAndDraw(stabilisation) {
@@ -492,6 +504,7 @@ function calculateAndDraw(stabilisation) {
 
         drawAll(joint1, joint2, joint3, base, pince, rotation);
         
+        send2server("arm", [Math.round(-joint1/Math.PI*180), Math.round(joint2/Math.PI*180)+90, Math.round(joint3/Math.PI*180)+90])
 
         document.getElementById("joint1-value").innerHTML = Math.round(- joint1 * 180 / Math.PI);
         document.getElementById("joint2-value").innerHTML = Math.round(joint2 * 180 / Math.PI) + 90;
@@ -503,4 +516,11 @@ function calculateAndDraw(stabilisation) {
         document.getElementById("joint3").value = joint3 * 180 / Math.PI + 90; 
         document.getElementById("stabilisation").value = stabilisation * 180 / Math.PI;
     }
+}
+
+
+function send2server(route, data){
+    xhr.open("POST", "/" + route, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify({data: data}));
 }
