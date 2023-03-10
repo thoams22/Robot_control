@@ -318,7 +318,7 @@ function drawRotation(rotation) {
 }
 
 function drawDirection(angle) {
-    ctx.clearRect(bodyBase.x-bodyBase.length, bodyBase.y-bodyBase.length, bodyBase.length*2, bodyBase.length*2);
+    ctx.clearRect(bodyBase.x - bodyBase.length, bodyBase.y - bodyBase.length, bodyBase.length * 2, bodyBase.length * 2);
     ctx.beginPath();
     ctx.moveTo(bodyBase.x, bodyBase.y);
     ctx.lineTo(bodyBase.x + bodyBase.length * Math.cos(angle), bodyBase.y + bodyBase.length * Math.sin(angle));
@@ -423,11 +423,11 @@ function updateAngle() {
 
     joint1 = -joint1 / 180 * Math.PI;
     joint2 = (joint2 - 90) / 180 * Math.PI;
-    joint3 = (joint3 - 90) / 180 * Math.PI; 
-    
+    joint3 = (joint3 - 90) / 180 * Math.PI;
+
     drawAll(joint1, joint2, joint3, base, pince, rotation);
 
-    send2server("arm", [Math.round(-joint1/Math.PI*180), Math.round(joint2/Math.PI*180)+90, Math.round(joint3/Math.PI*180)+90])
+    send2server("arm", [Math.round(-joint1 / Math.PI * 180), Math.round(joint2 / Math.PI * 180) + 90, Math.round(joint3 / Math.PI * 180) + 90])
 
 }
 
@@ -445,7 +445,7 @@ function updateBase() {
     base = document.getElementById("base").value;
 
     document.getElementById("base-value").innerHTML = base;
-    
+
     send2server("base", base);
 
     base = -base / 180 * Math.PI;
@@ -479,13 +479,13 @@ function updateRotation() {
     drawAll(joint1, joint2, joint3, base, pince, rotation);
 }
 
-function btnClick(){
-    if(clicked){
+function btnClick() {
+    if (clicked) {
         clicked = false;
-        }
-    else{
+    }
+    else {
         clicked = true;
-        }
+    }
     send2server("btn", clicked)
 }
 
@@ -498,29 +498,49 @@ function calculateAndDraw(stabilisation) {
     joint3 = angles.joint3;
 
     if (0 > joint1 && joint1 > -Math.PI &&
-        Math.PI / 2 > joint2 && joint2 > -Math.PI / 2 && 
+        Math.PI / 2 > joint2 && joint2 > -Math.PI / 2 &&
         Math.PI / 2 > joint3 && joint3 > -Math.PI / 2
     ) {
 
         drawAll(joint1, joint2, joint3, base, pince, rotation);
-        
-        send2server("arm", [Math.round(-joint1/Math.PI*180), Math.round(joint2/Math.PI*180)+90, Math.round(joint3/Math.PI*180)+90])
+
+        send2server("arm", [Math.round(-joint1 / Math.PI * 180), Math.round(joint2 / Math.PI * 180) + 90, Math.round(joint3 / Math.PI * 180) + 90])
 
         document.getElementById("joint1-value").innerHTML = Math.round(- joint1 * 180 / Math.PI);
         document.getElementById("joint2-value").innerHTML = Math.round(joint2 * 180 / Math.PI) + 90;
-        document.getElementById("joint3-value").innerHTML = Math.round(joint3 * 180 / Math.PI) + 90; 
+        document.getElementById("joint3-value").innerHTML = Math.round(joint3 * 180 / Math.PI) + 90;
         document.getElementById("stabilisation-value").innerHTML = Math.round(stabilisation * 180 / Math.PI);
 
         document.getElementById("joint1").value = - joint1 * 180 / Math.PI;
         document.getElementById("joint2").value = joint2 * 180 / Math.PI + 90;
-        document.getElementById("joint3").value = joint3 * 180 / Math.PI + 90; 
+        document.getElementById("joint3").value = joint3 * 180 / Math.PI + 90;
         document.getElementById("stabilisation").value = stabilisation * 180 / Math.PI;
     }
 }
 
+var distance = document.getElementById("distance")
+function refresh() {
+    fetch("data.json").then(response => response.json())
+        .then(data => {
+            console.log(data)
+            distance.innerHTML = data.distance
+        })
+    //xhr.open('GET', '/video_feed', true);
+    //xhr.onload = () => {}
+    //xhr.send(null);
+}
 
-function send2server(route, data){
+var refBtn = document.getElementById("refresh")
+refBtn.addEventListener('click', (event) => {
+xhr.open('GET', '/video_feed', true);
+hrx.send(null);
+});
+
+refresh()
+interval = setInterval(refresh, 6000)
+
+function send2server(route, data) {
     xhr.open("POST", "/" + route, true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send(JSON.stringify({data: data}));
+    xhr.send(JSON.stringify({ data: data }));
 }
